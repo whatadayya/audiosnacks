@@ -1,0 +1,807 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>有聲下酒菜 — What A Day</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&family=Noto+Serif+TC:wght@300;400;500&family=Noto+Sans+TC:wght@300;400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --black: #0A0A08;
+  --white: #F8F6F2;
+  --gray: #AAAAAA;
+  --gray2: #666662;
+  --gray3: #2A2A28;
+  --accent: #AAAAAA;
+  --border: rgba(170,170,170,0.2);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  height: 100%;
+  background: var(--black);
+  color: var(--white);
+  font-family: 'Noto Serif TC', serif;
+  overflow: hidden;
+}
+
+/* GRAIN OVERLAY */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 100;
+  opacity: 0.4;
+}
+
+.app {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+  position: relative;
+}
+
+/* HEADER */
+.header {
+  padding: 28px 32px 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-shrink: 0;
+}
+
+.brand-mark {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.brand-ch {
+  font-family: 'Noto Sans TC', sans-serif;
+  font-size: 9px;
+  letter-spacing: 0.22em;
+  color: var(--gray);
+  font-weight: 300;
+}
+
+.brand-en {
+  font-family: 'DM Mono', monospace;
+  font-size: 15px;
+  font-weight: 400;
+  color: var(--white);
+  letter-spacing: 0.04em;
+  line-height: 1;
+}
+
+.brand-en .a { font-size: 11px; vertical-align: middle; font-weight: 300; }
+
+.header-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  color: var(--gray);
+  text-align: right;
+  line-height: 1.6;
+  font-weight: 300;
+  font-style: italic;
+}
+
+/* MAIN CONTENT */
+.main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 20px 32px;
+  gap: 0;
+}
+
+/* STATE: BEFORE PLAY */
+.state-before {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 0;
+}
+
+/* STATE: PLAYING */
+.state-playing {
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  width: 100%;
+  max-width: 380px;
+  gap: 0;
+}
+
+/* WAVEFORM VISUAL */
+.waveform {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  height: 48px;
+  margin-bottom: 36px;
+}
+
+.wave-bar {
+  width: 2px;
+  background: var(--white);
+  border-radius: 1px;
+  animation: wave 1.2s ease-in-out infinite;
+  opacity: 0.7;
+}
+
+.wave-bar:nth-child(1) { height: 8px; animation-delay: 0s; }
+.wave-bar:nth-child(2) { height: 20px; animation-delay: 0.1s; }
+.wave-bar:nth-child(3) { height: 32px; animation-delay: 0.2s; }
+.wave-bar:nth-child(4) { height: 40px; animation-delay: 0.15s; }
+.wave-bar:nth-child(5) { height: 48px; animation-delay: 0.05s; }
+.wave-bar:nth-child(6) { height: 36px; animation-delay: 0.25s; }
+.wave-bar:nth-child(7) { height: 28px; animation-delay: 0.1s; }
+.wave-bar:nth-child(8) { height: 44px; animation-delay: 0.2s; }
+.wave-bar:nth-child(9) { height: 20px; animation-delay: 0.3s; }
+.wave-bar:nth-child(10) { height: 14px; animation-delay: 0.05s; }
+.wave-bar:nth-child(11) { height: 32px; animation-delay: 0.15s; }
+.wave-bar:nth-child(12) { height: 24px; animation-delay: 0.22s; }
+.wave-bar:nth-child(13) { height: 40px; animation-delay: 0.08s; }
+.wave-bar:nth-child(14) { height: 16px; animation-delay: 0.18s; }
+.wave-bar:nth-child(15) { height: 10px; animation-delay: 0.28s; }
+
+.wave-bar.paused { animation-play-state: paused; }
+
+@keyframes wave {
+  0%, 100% { transform: scaleY(0.4); opacity: 0.4; }
+  50% % { transform: scaleY(1); opacity: 0.9; }
+}
+
+/* SERIES TAG */
+.series-tag {
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.16em;
+  color: var(--gray);
+  text-transform: uppercase;
+  margin-bottom: 12px;
+  font-weight: 300;
+}
+
+/* STORY TITLE */
+.story-title {
+  font-size: 22px;
+  font-weight: 400;
+  color: var(--white);
+  letter-spacing: 0.04em;
+  line-height: 1.4;
+  margin-bottom: 8px;
+}
+
+/* STORY DURATION */
+.story-meta {
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  color: var(--gray);
+  letter-spacing: 0.08em;
+  margin-bottom: 36px;
+  font-weight: 300;
+}
+
+/* PROGRESS */
+.progress-wrap {
+  width: 100%;
+  margin-bottom: 10px;
+}
+
+.progress-bar {
+  width: 100%;
+  height: 1px;
+  background: var(--gray3);
+  position: relative;
+  cursor: pointer;
+}
+
+.progress-fill {
+  height: 100%;
+  background: var(--white);
+  width: 0%;
+  transition: width 0.5s linear;
+  position: relative;
+}
+
+.progress-fill::after {
+  content: '';
+  position: absolute;
+  right: -3px;
+  top: -3px;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--white);
+}
+
+.time-row {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 8px;
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  color: var(--gray);
+  letter-spacing: 0.06em;
+  font-weight: 300;
+}
+
+/* CONTROLS */
+.controls {
+  display: flex;
+  align-items: center;
+  gap: 32px;
+  margin-top: 32px;
+}
+
+.ctrl-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--gray);
+  transition: color 0.2s, transform 0.15s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px;
+}
+
+.ctrl-btn:hover { color: var(--white); transform: scale(1.05); }
+.ctrl-btn:active { transform: scale(0.95); }
+
+.ctrl-btn.play-pause {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  border: 1px solid rgba(248,246,242,0.3);
+  color: var(--white);
+}
+
+.ctrl-btn.play-pause:hover {
+  border-color: var(--white);
+  background: rgba(248,246,242,0.05);
+}
+
+/* BEFORE STATE ELEMENTS */
+.blind-box {
+  width: 80px;
+  height: 80px;
+  border: 1px solid rgba(170,170,170,0.3);
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 32px;
+  position: relative;
+  animation: float 4s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-6px); }
+}
+
+.blind-box-inner {
+  font-family: 'DM Mono', monospace;
+  font-size: 28px;
+  color: var(--white);
+  font-weight: 300;
+  font-style: italic;
+  line-height: 1;
+}
+
+.blind-box-line {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 32px;
+  height: 1px;
+  background: var(--white);
+}
+
+.before-title {
+  font-size: 18px;
+  font-weight: 400;
+  color: var(--white);
+  letter-spacing: 0.04em;
+  line-height: 1.6;
+  margin-bottom: 10px;
+}
+
+.before-sub {
+  font-family: 'Noto Sans TC', sans-serif;
+  font-size: 12px;
+  color: var(--gray);
+  line-height: 1.8;
+  font-weight: 300;
+  margin-bottom: 40px;
+  max-width: 260px;
+}
+
+/* PLAY BUTTON - BEFORE STATE */
+.play-btn-large {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  border: 1px solid rgba(248,246,242,0.4);
+  background: transparent;
+  color: var(--white);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s;
+  position: relative;
+}
+
+.play-btn-large::before {
+  content: '';
+  position: absolute;
+  inset: -8px;
+  border-radius: 50%;
+  border: 1px solid rgba(248,246,242,0.1);
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); opacity: 0.5; }
+  50% { transform: scale(1.08); opacity: 0.2; }
+}
+
+.play-btn-large:hover {
+  border-color: var(--white);
+  background: rgba(248,246,242,0.05);
+  transform: scale(1.04);
+}
+
+.play-hint {
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.16em;
+  color: var(--gray);
+  margin-top: 16px;
+  font-weight: 300;
+  font-style: italic;
+}
+
+/* FOOTER */
+.footer {
+  padding: 20px 32px 28px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  flex-shrink: 0;
+}
+
+.footer-left {
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  color: var(--gray3);
+  line-height: 1.7;
+  font-weight: 300;
+}
+
+.footer-tagline {
+  font-family: 'Noto Serif TC', serif;
+  font-size: 10px;
+  color: var(--gray3);
+  letter-spacing: 0.06em;
+  font-weight: 300;
+  font-style: italic;
+  text-align: right;
+}
+
+/* BLIND BOX REVEAL ANIMATION */
+.reveal-overlay {
+  position: fixed;
+  inset: 0;
+  background: var(--black);
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.4s;
+}
+
+.reveal-overlay.show {
+  opacity: 1;
+  pointer-events: all;
+}
+
+.reveal-text {
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  color: var(--gray);
+  font-style: italic;
+}
+
+/* LOADING DOTS */
+.loading-dots {
+  display: inline-flex;
+  gap: 4px;
+  margin-left: 8px;
+}
+
+.loading-dots span {
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: var(--gray);
+  animation: dot 1.2s ease-in-out infinite;
+}
+.loading-dots span:nth-child(2) { animation-delay: 0.2s; }
+.loading-dots span:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes dot {
+  0%, 100% { opacity: 0.2; transform: translateY(0); }
+  50% { opacity: 0.8; transform: translateY(-2px); }
+}
+
+/* DIVIDER LINE */
+.thin-line {
+  width: 1px;
+  height: 40px;
+  background: var(--gray3);
+  margin: 24px auto;
+}
+
+/* TRANSITION */
+.fade-enter {
+  animation: fadeIn 0.8s ease forwards;
+}
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* MOBILE */
+@media (max-width: 480px) {
+  .header { padding: 24px 24px 0; }
+  .main { padding: 20px 24px; }
+  .footer { padding: 16px 24px 24px; }
+  .story-title { font-size: 19px; }
+}
+</style>
+</head>
+<body>
+
+<div class="app">
+  <!-- HEADER -->
+  <div class="header">
+    <div class="brand-mark">
+      <div class="brand-ch">什 麼 好 日 子</div>
+      <div class="brand-en">WHAT<span class="a">a</span>___DAY</div>
+    </div>
+    <div class="header-label">
+      有聲下酒菜<br>
+      AUDIO STORIES
+    </div>
+  </div>
+
+  <!-- MAIN -->
+  <div class="main">
+
+    <!-- BEFORE STATE -->
+    <div class="state-before" id="stateBefore">
+      <div class="blind-box">
+        <div class="blind-box-inner">a</div>
+        <div class="blind-box-line"></div>
+      </div>
+      <div class="before-title">今晚，陪你的故事<br>還沒揭曉</div>
+      <div class="before-sub">按下播放，隨機抽出一則<br>匿名朋友的生活小故事<br>3–5 分鐘，陪你釀酒、等酒、喝酒</div>
+      <button class="play-btn-large" onclick="startPlay()" aria-label="開始播放">
+        <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+          <path d="M6 3.5L14.5 9L6 14.5V3.5Z" fill="currentColor"/>
+        </svg>
+      </button>
+      <div class="play-hint">TAP TO REVEAL</div>
+    </div>
+
+    <!-- PLAYING STATE -->
+    <div class="state-playing" id="statePlaying">
+      <div class="waveform" id="waveform">
+        <div class="wave-bar"></div><div class="wave-bar"></div>
+        <div class="wave-bar"></div><div class="wave-bar"></div>
+        <div class="wave-bar"></div><div class="wave-bar"></div>
+        <div class="wave-bar"></div><div class="wave-bar"></div>
+        <div class="wave-bar"></div><div class="wave-bar"></div>
+        <div class="wave-bar"></div><div class="wave-bar"></div>
+        <div class="wave-bar"></div><div class="wave-bar"></div>
+        <div class="wave-bar"></div>
+      </div>
+
+      <div class="series-tag" id="seriesTag">— 職場系列 —</div>
+      <div class="story-title" id="storyTitle">那天我遞了辭呈</div>
+      <div class="story-meta" id="storyMeta">4 分 23 秒</div>
+
+      <div class="progress-wrap">
+        <div class="progress-bar" id="progressBar" onclick="seekAudio(event)">
+          <div class="progress-fill" id="progressFill"></div>
+        </div>
+        <div class="time-row">
+          <span id="currentTime">0:00</span>
+          <span id="totalTime">4:23</span>
+        </div>
+      </div>
+
+      <div class="controls">
+        <button class="ctrl-btn" onclick="rewind10()" title="倒退10秒">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+            <path d="M10 3V1L6 4l4 3V5a5 5 0 11-5 5H3a7 7 0 107-7z" fill="currentColor"/>
+            <text x="10" y="13" text-anchor="middle" font-size="5.5" fill="currentColor" font-family="DM Mono">10</text>
+          </svg>
+        </button>
+
+        <button class="ctrl-btn play-pause" id="playPauseBtn" onclick="togglePlay()" aria-label="播放暫停">
+          <svg id="playIcon" width="18" height="18" viewBox="0 0 18 18" fill="none">
+            <path d="M6 3.5L14.5 9L6 14.5V3.5Z" fill="currentColor"/>
+          </svg>
+          <svg id="pauseIcon" width="18" height="18" viewBox="0 0 18 18" fill="none" style="display:none">
+            <rect x="4" y="3" width="4" height="12" rx="1" fill="currentColor"/>
+            <rect x="10" y="3" width="4" height="12" rx="1" fill="currentColor"/>
+          </svg>
+        </button>
+
+        <button class="ctrl-btn" onclick="forward10()" title="快進10秒">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+            <path d="M10 3V1l4 3-4 3V5a5 5 0 105 5h2a7 7 0 11-7-7z" fill="currentColor"/>
+            <text x="10" y="13" text-anchor="middle" font-size="5.5" fill="currentColor" font-family="DM Mono">10</text>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- FOOTER -->
+  <div class="footer">
+    <div class="footer-left">
+      © 2026 什麼好日子有限公司<br>
+      LYL Graphic · 品牌識別
+    </div>
+    <div class="footer-tagline">
+      What a _____ Day.<br>
+      You define the blank.
+    </div>
+  </div>
+</div>
+
+<!-- REVEAL OVERLAY -->
+<div class="reveal-overlay" id="revealOverlay">
+  <div>
+    <div class="reveal-text">
+      為你抽出今天的故事
+      <span class="loading-dots">
+        <span></span><span></span><span></span>
+      </span>
+    </div>
+  </div>
+</div>
+
+<!-- HIDDEN AUDIO -->
+<audio id="audioPlayer" preload="none"></audio>
+
+<script>
+// =============================================
+// 故事資料庫 — 這裡是你們管理內容的地方
+// 新增故事：複製一個物件，填入 title / series / duration / src
+// src 填入 Google Drive 分享連結或任何音檔 URL
+// =============================================
+const stories = [
+  {
+    id: 1,
+    title: "那天我遞了辭呈",
+    series: "職場系列",
+    duration: "4:23",
+    durationSec: 263,
+    src: "https://drive.google.com/uc?export=download&id=1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs" // 填入音檔連結
+  },
+  {
+    id: 2,
+    title: "她說，我不需要被理解",
+    series: "關係系列",
+    duration: "3:47",
+    durationSec: 227,
+    src: "https://drive.google.com/uc?export=download&id=1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs"
+  },
+  {
+    id: 3,
+    title: "回家的那班最後一班車",
+    series: "家庭系列",
+    duration: "5:02",
+    durationSec: 302,
+    src: "https://drive.google.com/uc?export=download&id=1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs"
+  },
+  {
+    id: 4,
+    title: "二十九歲的某個下午",
+    series: "日常系列",
+    duration: "4:11",
+    durationSec: 251,
+    src: "https://drive.google.com/uc?export=download&id=1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs"
+  },
+  {
+    id: 5,
+    title: "我養了一盆快死的植物",
+    series: "日常系列",
+    duration: "3:55",
+    durationSec: 235,
+    src: "https://drive.google.com/uc?export=download&id=1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs"
+  }
+];
+
+// =============================================
+// 播放器邏輯
+// =============================================
+let currentStory = null;
+let isPlaying = false;
+let timer = null;
+let elapsed = 0;
+
+function randomStory() {
+  const idx = Math.floor(Math.random() * stories.length);
+  return stories[idx];
+}
+
+function formatTime(sec) {
+  const m = Math.floor(sec / 60);
+  const s = Math.floor(sec % 60);
+  return `${m}:${s.toString().padStart(2,'0')}`;
+}
+
+function startPlay() {
+  // 顯示 reveal 動畫
+  const overlay = document.getElementById('revealOverlay');
+  overlay.classList.add('show');
+
+  // 隨機抽取故事
+  currentStory = randomStory();
+
+  setTimeout(() => {
+    overlay.classList.remove('show');
+
+    // 切換畫面
+    document.getElementById('stateBefore').style.display = 'none';
+    const playingState = document.getElementById('statePlaying');
+    playingState.style.display = 'flex';
+    playingState.classList.add('fade-enter');
+
+    // 填入故事資訊
+    document.getElementById('seriesTag').textContent = `— ${currentStory.series} —`;
+    document.getElementById('storyTitle').textContent = currentStory.title;
+    document.getElementById('storyMeta').textContent = currentStory.duration;
+    document.getElementById('totalTime').textContent = currentStory.duration;
+    elapsed = 0;
+
+    // 如果有音檔連結，載入並播放
+    const audio = document.getElementById('audioPlayer');
+    if (currentStory.src) {
+      audio.src = currentStory.src;
+      audio.play();
+    }
+
+    // 開始計時（Demo 模式 — 有實際音檔時由 audio 事件驅動）
+    startTimer();
+    setPlayingUI(true);
+
+  }, 2200);
+}
+
+function startTimer() {
+  clearInterval(timer);
+  const audio = document.getElementById('audioPlayer');
+
+  if (currentStory.src && audio.src) {
+    // 實際音檔模式
+    audio.addEventListener('timeupdate', updateFromAudio);
+    audio.addEventListener('ended', onEnded);
+  } else {
+    // Demo 模式（無音檔時模擬進度）
+    timer = setInterval(() => {
+      elapsed++;
+      if (elapsed >= currentStory.durationSec) {
+        onEnded();
+        return;
+      }
+      updateProgress(elapsed, currentStory.durationSec);
+    }, 1000);
+  }
+}
+
+function updateFromAudio() {
+  const audio = document.getElementById('audioPlayer');
+  updateProgress(audio.currentTime, audio.duration || currentStory.durationSec);
+}
+
+function updateProgress(current, total) {
+  const pct = (current / total) * 100;
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('currentTime').textContent = formatTime(current);
+}
+
+function togglePlay() {
+  const audio = document.getElementById('audioPlayer');
+  isPlaying = !isPlaying;
+
+  if (currentStory.src && audio.src) {
+    isPlaying ? audio.play() : audio.pause();
+  } else {
+    // Demo 模式
+    if (isPlaying) {
+      startTimer();
+    } else {
+      clearInterval(timer);
+    }
+  }
+
+  setPlayingUI(isPlaying);
+}
+
+function setPlayingUI(playing) {
+  isPlaying = playing;
+  document.getElementById('playIcon').style.display = playing ? 'none' : 'block';
+  document.getElementById('pauseIcon').style.display = playing ? 'block' : 'none';
+
+  const bars = document.querySelectorAll('.wave-bar');
+  bars.forEach(b => b.classList.toggle('paused', !playing));
+}
+
+function rewind10() {
+  const audio = document.getElementById('audioPlayer');
+  if (currentStory.src && audio.src) {
+    audio.currentTime = Math.max(0, audio.currentTime - 10);
+  } else {
+    elapsed = Math.max(0, elapsed - 10);
+    updateProgress(elapsed, currentStory.durationSec);
+  }
+}
+
+function forward10() {
+  const audio = document.getElementById('audioPlayer');
+  if (currentStory.src && audio.src) {
+    audio.currentTime = Math.min(audio.duration, audio.currentTime + 10);
+  } else {
+    elapsed = Math.min(currentStory.durationSec, elapsed + 10);
+    updateProgress(elapsed, currentStory.durationSec);
+  }
+}
+
+function seekAudio(e) {
+  const bar = document.getElementById('progressBar');
+  const rect = bar.getBoundingClientRect();
+  const pct = (e.clientX - rect.left) / rect.width;
+  const audio = document.getElementById('audioPlayer');
+
+  if (currentStory.src && audio.src) {
+    audio.currentTime = pct * audio.duration;
+  } else {
+    elapsed = Math.floor(pct * currentStory.durationSec);
+    updateProgress(elapsed, currentStory.durationSec);
+  }
+}
+
+function onEnded() {
+  clearInterval(timer);
+  setPlayingUI(false);
+  document.getElementById('progressFill').style.width = '100%';
+  document.getElementById('currentTime').textContent = currentStory.duration;
+}
+</script>
+</body>
+</html>
