@@ -356,11 +356,13 @@
       color: var(--text-sub);
     }
 
+    /* 控制面板 — 只保留置中的核心播放鈕 */
     .controls {
       display: flex;
       align-items: center;
-      gap: 32px;
+      justify-content: center;
       margin-top: 28px;
+      width: 100%;
     }
     .ctrl-btn {
       background: none;
@@ -376,8 +378,8 @@
     .ctrl-btn:hover { color: var(--text-main); transform: scale(1.05); }
     
     .ctrl-btn.play-pause {
-      width: 46px;
-      height: 46px;
+      width: 48px;
+      height: 48px;
       border-radius: 50%;
       border: 1px solid var(--text-main);
       color: var(--text-main);
@@ -573,12 +575,6 @@
         </div>
         
         <div class="controls">
-          <button class="ctrl-btn" onclick="rewind10()" title="倒退10秒">
-            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-              <path d="M10 3V1L6 4l4 3V5a5 5 0 11-5 5H3a7 7 0 107-7z" fill="currentColor"/>
-              <text x="10" y="14" text-anchor="middle" font-size="5" fill="currentColor" font-family="DM Mono">10</text>
-            </svg>
-          </button>
           <button class="ctrl-btn play-pause" id="playPauseBtn" onclick="togglePlay()" aria-label="播放或暫停">
             <svg id="playIcon" width="14" height="14" viewBox="0 0 16 16" fill="none">
               <path d="M5 3L13 8L5 13V3Z" fill="currentColor"/>
@@ -586,12 +582,6 @@
             <svg id="pauseIcon" width="14" height="14" viewBox="0 0 16 16" fill="none" style="display:none">
               <rect x="3.5" y="2.5" width="3.5" height="11" rx="0.5" fill="currentColor"/>
               <rect x="9" y="2.5" width="3.5" height="11" rx="0.5" fill="currentColor"/>
-            </svg>
-          </button>
-          <button class="ctrl-btn" onclick="forward10()" title="快進10秒">
-            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-              <path d="M10 3V1l4 3-4 3V5a5 5 0 105 5h2a7 7 0 11-7-7z" fill="currentColor"/>
-              <text x="10" y="14" text-anchor="middle" font-size="5" fill="currentColor" font-family="DM Mono">10</text>
             </svg>
           </button>
         </div>
@@ -607,7 +597,7 @@
     <div class="footer-right">
       <img src="https://raw.githubusercontent.com/whatadayya/audiosnacks/refs/heads/main/P-WaD%20logo-black5.png" alt="WHAT a DAY" class="footer-logo-img">
       <div class="footer-tagline">
-        You define the blank.
+         Let's define the blank.
       </div>
     </div>
   </div>
@@ -785,25 +775,6 @@
     document.getElementById('playIcon').style.display = playing ? 'none' : 'block';
     document.getElementById('pauseIcon').style.display = playing ? 'block' : 'none';
     document.querySelectorAll('.wave-bar').forEach(b => b.style.animationPlayState = playing ? 'running' : 'paused');
-  }
-
-  function rewind10() {
-    if (audio.src && !isNaN(audio.duration)) {
-      audio.currentTime = Math.max(0, audio.currentTime - 10);
-    } else {
-      elapsed = Math.max(0, elapsed - 10);
-      updateProgress(elapsed, currentStory.durationSec);
-    }
-  }
-
-  // 快進 10 秒
-  function forward10() {
-    if (audio.src && !isNaN(audio.duration)) {
-      audio.currentTime = Math.min(audio.duration, audio.currentTime + 10);
-    } else {
-      elapsed = Math.min(currentStory.durationSec, elapsed + 10);
-      updateProgress(elapsed, currentStory.durationSec);
-    }
   }
 
   function seekAudio(e) {
